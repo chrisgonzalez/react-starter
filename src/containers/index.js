@@ -1,6 +1,7 @@
 import React, { PropTypes, Component } from 'react';
 import { render } from 'react-dom';
-import Dots from 'dots';
+import StackedBar from 'stacked-bar';
+import d3 from 'd3';
 
 require('./visualization.scss');
 
@@ -9,14 +10,18 @@ class App extends Component {
     render() {
         return (
             <div className="visualization">
-                <Dots {...this.props} />
+                <StackedBar {...this.props} />
             </div>
         )
     }
 }
 
-const elem = document.querySelector('#visualization');
+const createViz = (data) => {
+    const elem = document.querySelector('#visualization');
+    const visualization = (<App data={data} elem={elem} />);
+    render(visualization, elem);
+}
 
-const visualization = (<App data={[10, 5, 20, 43, 52, 62, 6, 86, 53, 74, 64]} elem={elem} />);
-
-render(visualization, elem);
+d3.csv("lethal-injection-executions.csv", function(error, data) {
+    createViz(data);
+});

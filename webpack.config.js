@@ -41,6 +41,12 @@ module.exports = {
         ]
     },
     plugins: [
+        // new webpack.DefinePlugin({
+        //     'process.env': {
+        //         'BROWSER': JSON.stringify(true),
+        //         'NODE_ENV': 'production'
+        //     }
+        // }),
         // Extract out the CSS into their own external files
         new ExtractTextPlugin('css/[name].css', {
             disable: false,

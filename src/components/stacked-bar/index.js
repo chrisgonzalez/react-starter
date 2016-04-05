@@ -1,27 +1,29 @@
 import React, { PropTypes, Component } from 'react';
 import d3 from 'd3';
 
-require('./dots.scss');
+require('./stacked-bar.scss');
 
-export default class Dots extends Component {
+export default class StackedBar extends Component {
     constructor(props) {
         super(props);
 
-        this.renderDots = this.renderDots.bind(this);
+        this.renderStackedBar = this.renderStackedBar.bind(this);
     }
 
     componentDidMount() {
-        window.addEventListener('resize', this.renderDots);
-        this.renderDots();
+        window.addEventListener('resize', this.renderStackedBar);
+        this.renderStackedBar();
     }
 
-    renderDots() {
+    renderStackedBar() {
         const elemHeight = parseInt(window.getComputedStyle(this.props.elem).height);
         const elemWidth = parseInt(window.getComputedStyle(this.props.elem).width);
 
-        const dots = d3.select(this.props.elem).select('.dots').selectAll('.dot').data(this.props.data);
+        const x = d3.scale.ordinal().rangeRoundBands([0, elemWidth], .1);
 
-        const circleScale = d3.scale.linear().domain([d3.min(this.props.data), d3.max(this.props.data)]).range([30, 100])
+        const maxValue = d3.max(this.props.data.map((d) => (d['drugs'] + d['no drugs'])));
+        const y = d3.scale.linear().domain([0, maxValue]).range([elemHeight, 0])
+        const dots = d3.select(this.props.elem).select('.dots').selectAll('.dot').data(this.props.data);
 
         dots.enter()
             .append('div')
@@ -39,15 +41,16 @@ export default class Dots extends Component {
     }
 
     render() {
-        this.renderDots();
+        console.log(this.props.data);
+        this.renderStackedBar();
 
         return (
-            <div className="dots"></div>
+            <svg className="stacked-bar"></svg>
         )
     }
 }
 
-Dots.propTypes = {
+StackedBar.propTypes = {
     data: PropTypes.array,
     elem: PropTypes.object
 }
