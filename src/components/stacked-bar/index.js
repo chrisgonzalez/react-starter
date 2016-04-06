@@ -16,41 +16,84 @@ export default class StackedBar extends Component {
     }
 
     renderStackedBar() {
-        const elemHeight = parseInt(window.getComputedStyle(this.props.elem).height);
-        const elemWidth = parseInt(window.getComputedStyle(this.props.elem).width);
+        const { keyMapping, gutter, data, elem } = this.props;
 
-        const x = d3.scale.ordinal().rangeRoundBands([0, elemWidth], .1);
+        const elemHeight = parseInt(window.getComputedStyle(elem).height);
+        const elemWidth = parseInt(window.getComputedStyle(elem).width);
 
-        const maxValue = d3.max(this.props.data.map((d) => (d['drugs'] + d['no drugs'])));
-        const y = d3.scale.linear().domain([0, maxValue]).range([elemHeight, 0])
-        const dots = d3.select(this.props.elem).select('.dots').selectAll('.dot').data(this.props.data);
+        const maxValue = d3.max(data.map((d) => (
+            keyMapping.reduce((prev, key) => (
+                prev + +d[key]
+            ), 0)
+        )));
 
-        dots.enter()
-            .append('div')
-            .attr('class', 'dot');
+        const x = d3.scale.ordinal()
+                    .domain(data.map((d, i) => (i)))
+                    .rangeRoundBands([gutter[3], elemWidth - gutter[1]], .2);
 
-        dots.each(function(d) {
-            d3.select(this)
-              .html((d) => (d))
-              .style('width', (d) => (circleScale(d) + 'px'))
-              .style('height', (d) => (circleScale(d) + 'px'))
-              .style('line-height', (d) => (circleScale(d) + 'px'))
-        });
+        const y = d3.scale.linear()
+                    .domain([0, maxValue])
+                    .rangeRound([elemHeight - gutter[2], gutter[0]]);
 
-        dots.exit().remove('.dot');
+        const height = d3.scale.linear()
+                         .domain([0, maxValue])
+                         .rangeRound([0, elemHeight - (gutter[2] + gutter[0])]);
+
+        const bars = d3.select(elem).select('.stacked-bar').selectAll('.dot').data(data);
+
+        bars.enter()
+            .append('g')
+            .attr('class', 'bar-group')
+            .each(function(d) {
+                const barGroup = d3.select(this);
+
+                keyMapping.forEach((key) => {
+                    barGroup.append('rect')
+                            .attr('data-key', key)
+                });
+            });
+
+        bars.attr('transform', (d, i) => {
+                const xPos = x(i);
+                const yPos = y(keyMapping.reduce((value, key) => (value + +d[key]), 0));
+                return `translate(${xPos}, ${yPos})`;
+            })
+            .each(function(d, i) {
+                const barGroup = d3.select(this);
+
+                keyMapping.forEach((key, i) => {
+                    let yVal = 0;
+
+                    for (let j = 0; j < i; j++) {
+                        yVal += height(+d[keyMapping[j]])
+                    }
+
+                    barGroup.select(`[data-key="${key}"]`)
+                            .attr('width', () => (x.rangeBand()))
+                            .attr('height', (d) => (height(+d[key])))
+                            .attr('transform', () => (`translate(0, ${yVal})`));
+                });
+            });
+
+        bars.exit().remove('.bar-group');
     }
 
     render() {
-        console.log(this.props.data);
         this.renderStackedBar();
 
         return (
-            <svg className="stacked-bar"></svg>
+            <g className="stacked-bar"></g>
         )
     }
 }
 
+StackedBar.defaultProps = {
+    gutter: [0, 0, 0, 0]
+}
+
 StackedBar.propTypes = {
     data: PropTypes.array,
-    elem: PropTypes.object
+    elem: PropTypes.object,
+    keyMapping: PropTypes.array,
+    gutter: PropTypes.array
 }
