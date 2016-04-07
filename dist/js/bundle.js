@@ -19864,7 +19864,7 @@
 
 	            var height = _d2.default.scale.linear().domain([0, maxValue]).rangeRound([0, elemHeight - (gutter[2] + gutter[0])]);
 
-	            var bars = _d2.default.select(elem).select('.stacked-bar').selectAll('.dot').data(data);
+	            var bars = _d2.default.select(elem).select('.stacked-bar').selectAll('.bar-group').data(data);
 
 	            bars.enter().append('g').attr('class', 'bar-group').each(function (d) {
 	                var barGroup = _d2.default.select(this);

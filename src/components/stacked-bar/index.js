@@ -39,7 +39,7 @@ export default class StackedBar extends Component {
                          .domain([0, maxValue])
                          .rangeRound([0, elemHeight - (gutter[2] + gutter[0])]);
 
-        const bars = d3.select(elem).select('.stacked-bar').selectAll('.dot').data(data);
+        const bars = d3.select(elem).select('.stacked-bar').selectAll('.bar-group').data(data);
 
         bars.enter()
             .append('g')
