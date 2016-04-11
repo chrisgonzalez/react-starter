@@ -28,6 +28,7 @@
   "devDependencies": {},
   "scripts": {
     "watch": "webpack --watch --config webpack.config.js",
+    "build": "webpack -p --config webpack.config.production.js",
     "local": "serve dist/ --cors"
   },
   "repository": "",
